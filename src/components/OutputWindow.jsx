@@ -3,17 +3,18 @@ import React from "react";
 const OutputWindow = ({ outputDetails }) => {
 
   return (
-    <div className='flex flex-col md:pt-0 pt-1 md:w-10/12'>
-      <h1 className="text-stone-500 font-bold text-xl">
-        Output
-      </h1>
-      <div className="md:h-56 2xl:h-72 h-72 bg-[#1e1e1e] rounded-md text-white font-normal text-sm overflow-y-auto">
+    <div className='h-full'>
+      <div className="h-64 bg-slate-900/50 rounded-lg border border-slate-700/50 text-slate-200 font-mono text-sm overflow-y-auto backdrop-blur-sm">
         {outputDetails ? 
         <>
-          <pre className="px-2 py-1 font-normal text-sm text-white">
-            {outputDetails?.output}
+          <pre className="p-4 whitespace-pre-wrap break-words">
+            {outputDetails?.output || 'No output'}
           </pre>
-        </> : null}
+        </> : 
+        <div className="p-4 text-slate-500 italic">
+          Run your code to see the output here...
+        </div>
+        }
       </div>
     </div>
   );

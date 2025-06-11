@@ -12,7 +12,6 @@ import randomColor from 'randomcolor'
 import Client from '../components/Client'
 import CopyRoomButton from '../components/CopyRoomButton'
 import OutputDetails from '../components/OutputDetails'
-import Layout from '../layout/Layout';
 
 const CodeEditor = ({ roomID }) => {
 
@@ -129,40 +128,108 @@ const CodeEditor = ({ roomID }) => {
     }
 
     return (
-        <Layout>
-            <div className='space-y-1 py-1'>
-                <div className='flex flex-row space-x-3'>
-                    {hideUsers ? null : (
-                        <div className='flex flex-row space-x-3'>
-                            {users.map((user) => (
-                                <Client key={user.clientId} username={user.name} color={user.color} />
-                            ))}
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+            {/* Header */}
+            <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            CodeTogether
+                        </h1>
+                        <div className="text-sm text-slate-400">
+                            Room: <span className="font-mono text-blue-400">{roomID}</span>
+                        </div>
+                    </div>
+                    
+                    {/* Active Users */}
+                    {!hideUsers && (
+                        <div className="flex items-center space-x-3">
+                            <span className="text-sm text-slate-400">Active users:</span>
+                            <div className="flex -space-x-2">
+                                {users.map((user) => (
+                                    <Client key={user.clientId} username={user.name} color={user.color} />
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
-                <LanguagesDropdown currValue={currLang} onSelectChange={(event) => setCurrLang(event)}/>
-                <Editor
-                    aria-labelledby="Code Editor"
-                    className='justify-center'
-                    language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
-                    height="50vh"
-                    theme='vs-dark'
-                    onMount={handleEditorDidMount}
-                    options={{
-                        cursorBlinking: "smooth",
-                    }}
-                />
-                <div className='flex flex-row'>
-                    <CompileButton content={editorRef} langauge={currLang} input={input} setOutput={(output) => {setCompilerText(output)}}/>
-                    <CopyRoomButton />
-                </div>
-                <div className='flex md:flex-row md:space-x-2 flex-col'>
-                    <InputWindow setInput={(input) => {setInput(input)}}/>
-                    <OutputWindow outputDetails={compilerText}/>
-                </div>
-                <OutputDetails outputDetails={compilerText}/>
             </div>
-        </Layout>
+
+            {/* Main Content */}
+            <div className="p-6 space-y-6">
+                {/* Controls Bar */}
+                <div className="flex flex-wrap items-center gap-4 bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+                    <div className="flex-1 min-w-64">
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Language</label>
+                        <LanguagesDropdown currValue={currLang} onSelectChange={(event) => setCurrLang(event)}/>
+                    </div>
+                    <div className="flex gap-3">
+                        <CompileButton content={editorRef} langauge={currLang} input={input} setOutput={(output) => {setCompilerText(output)}}/>
+                        <CopyRoomButton />
+                    </div>
+                </div>
+
+                {/* Editor */}
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
+                    <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50">
+                        <span className="text-sm font-medium text-slate-300">Code Editor</span>
+                    </div>
+                    <Editor
+                        aria-labelledby="Code Editor"
+                        language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
+                        height="60vh"
+                        theme='vs-dark'
+                        onMount={handleEditorDidMount}
+                        options={{
+                            cursorBlinking: "smooth",
+                            fontSize: 14,
+                            lineHeight: 1.6,
+                            padding: { top: 16, bottom: 16 },
+                            scrollBeyondLastLine: false,
+                            minimap: { enabled: false },
+                            renderLineHighlight: 'gutter',
+                        }}
+                    />
+                </div>
+
+                {/* Input/Output Section */}
+                <div className="grid lg:grid-cols-3 gap-6">
+                    {/* Input */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full">
+                            <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50">
+                                <span className="text-sm font-medium text-slate-300">Input</span>
+                            </div>
+                            <div className="p-4">
+                                <InputWindow setInput={(input) => {setInput(input)}}/>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Output */}
+                    <div className="lg:col-span-2">
+                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full">
+                            <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50 flex items-center justify-between">
+                                <span className="text-sm font-medium text-slate-300">Output</span>
+                                {compilerText && (
+                                    <div className="flex items-center space-x-4 text-xs text-slate-400">
+                                        {compilerText?.cpuTime && (
+                                            <span>CPU: {compilerText.cpuTime}s</span>
+                                        )}
+                                        {compilerText?.memory && (
+                                            <span>Memory: {compilerText.memory} KB</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="p-4">
+                                <OutputWindow outputDetails={compilerText}/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     )
 }
 

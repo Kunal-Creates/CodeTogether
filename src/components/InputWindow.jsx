@@ -7,18 +7,13 @@ const InputWindow = ({ setInput }) => {
   };
 
   return (
-    <div className='flex flex-col md:w-2/12'>
-      <h1 className="text-stone-500 font-bold text-xl">
-        Input
-      </h1>
-      <div className="text-white font-mono md:h-56 2xl:h-72 h-28 rounded-md font-normal text-sm">
-        <textarea 
-          aria-label="Input Window"
-          className='w-full rounded-md h-56 p-1 bg-[#1e1e1e]'
-          style={{ resize: 'none', height: '100%'}}
-          onChange={handleInputChange}
-        />
-      </div>
+    <div className='h-full'>
+      <textarea 
+        aria-label="Input Window"
+        placeholder="Enter your input here..."
+        className='w-full h-64 p-4 bg-slate-900/50 text-slate-200 placeholder-slate-500 rounded-lg border border-slate-700/50 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/50 resize-none font-mono text-sm backdrop-blur-sm transition-colors'
+        onChange={handleInputChange}
+      />
     </div>
   )
 }
