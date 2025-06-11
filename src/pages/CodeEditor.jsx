@@ -12,6 +12,7 @@ import randomColor from 'randomcolor'
 import Client from '../components/Client'
 import CopyRoomButton from '../components/CopyRoomButton'
 import OutputDetails from '../components/OutputDetails'
+import Layout from '../layout/Layout';
 
 const CodeEditor = ({ roomID }) => {
 
@@ -125,38 +126,40 @@ const CodeEditor = ({ roomID }) => {
     }
 
     return (
-        <div className='mx-5 space-y-1 py-1'>
-            <div className='flex flex-row space-x-3'>
-                {hideUsers ? null : (
-                    <div className='flex flex-row space-x-3'>
-                        {users.map((user) => (
-                            <Client key={user.clientId} username={user.name} color={user.color} />
-                        ))}
-                    </div>
-                )}
+        <Layout>
+            <div className='space-y-1 py-1'>
+                <div className='flex flex-row space-x-3'>
+                    {hideUsers ? null : (
+                        <div className='flex flex-row space-x-3'>
+                            {users.map((user) => (
+                                <Client key={user.clientId} username={user.name} color={user.color} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+                <LanguagesDropdown currValue={currLang} onSelectChange={(event) => setCurrLang(event)}/>
+                <Editor
+                    aria-labelledby="Code Editor"
+                    className='justify-center'
+                    language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
+                    height="50vh"
+                    theme='vs-dark'
+                    onMount={handleEditorDidMount}
+                    options={{
+                        cursorBlinking: "smooth",
+                    }}
+                />
+                <div className='flex flex-row'>
+                    <CompileButton content={editorRef} langauge={currLang} input={input} setOutput={(output) => {setCompilerText(output)}}/>
+                    <CopyRoomButton />
+                </div>
+                <div className='flex md:flex-row md:space-x-2 flex-col'>
+                    <InputWindow setInput={(input) => {setInput(input)}}/>
+                    <OutputWindow outputDetails={compilerText}/>
+                </div>
+                <OutputDetails outputDetails={compilerText}/>
             </div>
-            <LanguagesDropdown currValue={currLang} onSelectChange={(event) => setCurrLang(event)}/>
-            <Editor
-                aria-labelledby="Code Editor"
-                className='justify-center'
-                language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
-                height="50vh"
-                theme='vs-dark'
-                onMount={handleEditorDidMount}
-                options={{
-                    cursorBlinking: "smooth",
-                }}
-            />
-            <div className='flex flex-row'>
-                <CompileButton content={editorRef} langauge={currLang} input={input} setOutput={(output) => {setCompilerText(output)}}/>
-                <CopyRoomButton />
-            </div>
-            <div className='flex md:flex-row md:space-x-2 flex-col'>
-                <InputWindow setInput={(input) => {setInput(input)}}/>
-                <OutputWindow outputDetails={compilerText}/>
-            </div>
-            <OutputDetails outputDetails={compilerText}/>
-        </div>
+        </Layout>
     )
 }
 
