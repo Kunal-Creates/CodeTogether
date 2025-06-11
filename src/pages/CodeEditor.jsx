@@ -28,7 +28,10 @@ const CodeEditor = ({ roomID }) => {
         editorRef.current = editor;
         editorRef.current.getModel().setEOL(0);
         const ydoc = new Y.Doc(); 
-        const provider = new WebrtcProvider(roomID, ydoc, { signaling: [import.meta.env.VITE_BACKEND_URL] })
+        
+        // Use a fallback URL if the environment variable is not set
+        const signalingUrl = import.meta.env.VITE_BACKEND_URL || 'wss://y-webrtc-signaling-eu.herokuapp.com/';
+        const provider = new WebrtcProvider(roomID, ydoc, { signaling: [signalingUrl] })
         const type = ydoc.getText("monaco"); 
 
         const undoManager = new Y.UndoManager(type)
