@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { 
   MagnifyingGlassIcon, 
   ShareIcon, 
-  PlayIcon,
-  ExternalLinkIcon
+  PlayIcon
 } from '@heroicons/react/24/outline';
-import { UserGroupIcon } from '@heroicons/react/24/solid';
+import { UserGroupIcon, ExternalLinkIcon } from '@heroicons/react/24/solid';
 
 const Header = ({ users, roomID, onShare, onRun, onLivePreview }) => {
   const [searchQuery, setSearchQuery] = useState('');
