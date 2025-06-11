@@ -4,7 +4,7 @@ import {
   ShareIcon, 
   PlayIcon
 } from '@heroicons/react/24/outline';
-import { UserGroupIcon, ExternalLinkIcon } from '@heroicons/react/24/solid';
+import { UserGroupIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
 
 const Header = ({ users, roomID, onShare, onRun, onLivePreview }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,7 +94,7 @@ const Header = ({ users, roomID, onShare, onRun, onLivePreview }) => {
             onClick={onLivePreview}
             className="flex items-center space-x-1 px-3 py-1.5 bg-[#2d2d2d] hover:bg-[#3e3e3e] text-gray-200 rounded-md text-sm font-medium transition-colors"
           >
-            <ExternalLinkIcon className="w-4 h-4" />
+            <ArrowTopRightOnSquareIcon className="w-4 h-4" />
             <span>Live Preview</span>
           </button>
 
