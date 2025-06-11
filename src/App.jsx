@@ -1,4 +1,4 @@
-import { useState, useEffect, React, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ShortUniqueId from 'short-unique-id';
 import { Analytics } from '@vercel/analytics/react';
