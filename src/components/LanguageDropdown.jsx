@@ -12,15 +12,16 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
       borderRadius: '0.5rem',
       minHeight: '42px',
       '&:hover': {
-        border: '1px solid rgba(99, 102, 241, 0.5)',
+        border: '1px solid rgba(16, 185, 129, 0.5)',
       },
-      boxShadow: state.isFocused ? '0 0 0 1px rgba(99, 102, 241, 0.5)' : 'none',
+      boxShadow: state.isFocused ? '0 0 0 1px rgba(16, 185, 129, 0.5)' : 'none',
       backdropFilter: 'blur(4px)',
     }),
     singleValue: (provided) => ({
       ...provided,
       color: '#e2e8f0',
       fontSize: '14px',
+      fontWeight: '500',
     }),
     placeholder: (provided) => ({
       ...provided,
@@ -34,21 +35,24 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
       borderRadius: '0.5rem',
       backdropFilter: 'blur(8px)',
       zIndex: 50,
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
     }),
     menuList: (provided) => ({
       ...provided,
       padding: '4px',
+      maxHeight: '300px',
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
+      backgroundColor: state.isFocused ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
       color: state.isFocused ? '#e2e8f0' : '#cbd5e1',
       cursor: 'pointer',
       borderRadius: '0.375rem',
       margin: '2px 0',
       fontSize: '14px',
+      fontWeight: state.isSelected ? '600' : '400',
       '&:hover': {
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
         color: '#e2e8f0',
       },
     }),
@@ -61,6 +65,10 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
     }),
     indicatorSeparator: () => ({
       display: 'none',
+    }),
+    input: (provided) => ({
+      ...provided,
+      color: '#e2e8f0',
     }),
   };
 

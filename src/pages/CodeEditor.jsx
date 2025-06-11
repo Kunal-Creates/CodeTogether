@@ -132,11 +132,11 @@ const CodeEditor = ({ roomID }) => {
             <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                            CodeTogether
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+                            Granite
                         </h1>
                         <div className="text-sm text-slate-400">
-                            Room: <span className="font-mono text-blue-400">{roomID}</span>
+                            Room: <span className="font-mono text-emerald-400">{roomID}</span>
                         </div>
                     </div>
                     
@@ -144,7 +144,7 @@ const CodeEditor = ({ roomID }) => {
                     {!hideUsers && (
                         <div className="flex items-center space-x-3">
                             <span className="text-sm text-slate-400">Active users:</span>
-                            <div className="flex -space-x-2">
+                            <div className="flex space-x-2">
                                 {users.map((user) => (
                                     <Client key={user.clientId} username={user.name} color={user.color} />
                                 ))}
@@ -169,9 +169,25 @@ const CodeEditor = ({ roomID }) => {
                 </div>
 
                 {/* Editor */}
-                <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
-                    <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50">
-                        <span className="text-sm font-medium text-slate-300">Code Editor</span>
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-2xl">
+                    <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="flex space-x-2">
+                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <span className="text-sm font-medium text-slate-300">
+                                main.{currLang.id === 'python3' || currLang.id === 'python2' ? 'py' : 
+                                      currLang.id === 'javascript' || currLang.id === 'nodejs' ? 'js' :
+                                      currLang.id === 'java' ? 'java' :
+                                      currLang.id === 'cpp' ? 'cpp' :
+                                      currLang.id === 'c' ? 'c' : 'txt'}
+                            </span>
+                        </div>
+                        <div className="text-xs text-slate-400">
+                            {currLang.label}
+                        </div>
                     </div>
                     <Editor
                         aria-labelledby="Code Editor"
@@ -185,8 +201,17 @@ const CodeEditor = ({ roomID }) => {
                             lineHeight: 1.6,
                             padding: { top: 16, bottom: 16 },
                             scrollBeyondLastLine: false,
-                            minimap: { enabled: false },
+                            minimap: { enabled: true, scale: 0.8 },
                             renderLineHighlight: 'gutter',
+                            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Menlo', monospace",
+                            fontLigatures: true,
+                            smoothScrolling: true,
+                            cursorSmoothCaretAnimation: true,
+                            bracketPairColorization: { enabled: true },
+                            guides: {
+                                bracketPairs: true,
+                                indentation: true,
+                            },
                         }}
                     />
                 </div>
@@ -195,9 +220,14 @@ const CodeEditor = ({ roomID }) => {
                 <div className="grid lg:grid-cols-3 gap-6">
                     {/* Input */}
                     <div className="lg:col-span-1">
-                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full">
-                            <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50">
-                                <span className="text-sm font-medium text-slate-300">Input</span>
+                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full shadow-lg">
+                            <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50">
+                                <span className="text-sm font-medium text-slate-300 flex items-center">
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Input
+                                </span>
                             </div>
                             <div className="p-4">
                                 <InputWindow setInput={(input) => {setInput(input)}}/>
@@ -207,16 +237,25 @@ const CodeEditor = ({ roomID }) => {
 
                     {/* Output */}
                     <div className="lg:col-span-2">
-                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full">
-                            <div className="bg-slate-800/50 px-4 py-2 border-b border-slate-700/50 flex items-center justify-between">
-                                <span className="text-sm font-medium text-slate-300">Output</span>
+                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full shadow-lg">
+                            <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
+                                <span className="text-sm font-medium text-slate-300 flex items-center">
+                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    Output
+                                </span>
                                 {compilerText && (
                                     <div className="flex items-center space-x-4 text-xs text-slate-400">
                                         {compilerText?.cpuTime && (
-                                            <span>CPU: {compilerText.cpuTime}s</span>
+                                            <span className="bg-slate-700/50 px-2 py-1 rounded">
+                                                CPU: {compilerText.cpuTime}s
+                                            </span>
                                         )}
                                         {compilerText?.memory && (
-                                            <span>Memory: {compilerText.memory} KB</span>
+                                            <span className="bg-slate-700/50 px-2 py-1 rounded">
+                                                Memory: {compilerText.memory} KB
+                                            </span>
                                         )}
                                     </div>
                                 )}
