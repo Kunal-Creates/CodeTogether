@@ -93,11 +93,10 @@ function CompileButton({ content, langauge, input, setOutput }) {
             });
     }
 
-
     return (
         <button 
             aria-label="Run Code" 
-            className="flex items-center justify-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl" 
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-[#4a90e2] hover:bg-[#357abd] text-white font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm" 
             disabled={processing} 
             onClick={compileCode}
         >

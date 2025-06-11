@@ -7,35 +7,32 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
   const customStyles = {
     control: (provided, state) => ({
       ...provided,
-      backgroundColor: 'rgba(51, 65, 85, 0.5)',
-      border: '1px solid rgba(71, 85, 105, 0.5)',
-      borderRadius: '0.5rem',
-      minHeight: '42px',
+      backgroundColor: '#2d2d2d',
+      border: '1px solid #3e3e3e',
+      borderRadius: '6px',
+      minHeight: '36px',
       '&:hover': {
-        border: '1px solid rgba(16, 185, 129, 0.5)',
+        border: '1px solid #4a90e2',
       },
-      boxShadow: state.isFocused ? '0 0 0 1px rgba(16, 185, 129, 0.5)' : 'none',
-      backdropFilter: 'blur(4px)',
+      boxShadow: state.isFocused ? '0 0 0 1px #4a90e2' : 'none',
     }),
     singleValue: (provided) => ({
       ...provided,
-      color: '#e2e8f0',
+      color: '#e5e7eb',
       fontSize: '14px',
-      fontWeight: '500',
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: '#94a3b8',
+      color: '#9ca3af',
       fontSize: '14px',
     }),
     menu: (provided) => ({
       ...provided,
-      backgroundColor: 'rgba(30, 41, 59, 0.95)',
-      border: '1px solid rgba(71, 85, 105, 0.5)',
-      borderRadius: '0.5rem',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: '#2d2d2d',
+      border: '1px solid #3e3e3e',
+      borderRadius: '6px',
       zIndex: 50,
-      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
     }),
     menuList: (provided) => ({
       ...provided,
@@ -44,23 +41,23 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isFocused ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
-      color: state.isFocused ? '#e2e8f0' : '#cbd5e1',
+      backgroundColor: state.isFocused ? '#4a90e2' : 'transparent',
+      color: state.isFocused ? '#ffffff' : '#e5e7eb',
       cursor: 'pointer',
-      borderRadius: '0.375rem',
+      borderRadius: '4px',
       margin: '2px 0',
       fontSize: '14px',
       fontWeight: state.isSelected ? '600' : '400',
       '&:hover': {
-        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-        color: '#e2e8f0',
+        backgroundColor: '#4a90e2',
+        color: '#ffffff',
       },
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: '#94a3b8',
+      color: '#9ca3af',
       '&:hover': {
-        color: '#e2e8f0',
+        color: '#e5e7eb',
       },
     }),
     indicatorSeparator: () => ({
@@ -68,7 +65,7 @@ const LanguagesDropdown = memo(({ onSelectChange, currValue }) => {
     }),
     input: (provided) => ({
       ...provided,
-      color: '#e2e8f0',
+      color: '#e5e7eb',
     }),
   };
 

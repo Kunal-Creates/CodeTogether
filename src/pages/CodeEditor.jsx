@@ -9,17 +9,26 @@ import InputWindow from '../components/InputWindow'
 import OutputWindow from '../components/OutputWindow'
 import { languageOptions } from '../data/languageOptions'
 import randomColor from 'randomcolor'
-import Client from '../components/Client'
-import CopyRoomButton from '../components/CopyRoomButton'
+import Header from '../components/Header'
+import Sidebar from '../components/Sidebar'
+import FileTree from '../components/FileTree'
+import EditorTabs from '../components/EditorTabs'
 
 const CodeEditor = ({ roomID }) => {
-
     const editorRef = useRef(null);
     const [users, setUsers] = useState([]);
     const [hideUsers, setHideUsers] = useState(false);
     const [currLang, setCurrLang] = useState(languageOptions[56]);
     const [compilerText, setCompilerText] = useState('');
     const [input, setInput] = useState('');
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [activePanel, setActivePanel] = useState('explorer');
+    const [selectedFile, setSelectedFile] = useState('src/App.jsx');
+    const [openTabs, setOpenTabs] = useState([
+        { id: 'src/App.jsx', name: 'App.jsx', modified: false }
+    ]);
+    const [activeTab, setActiveTab] = useState('src/App.jsx');
+    const [showInputOutput, setShowInputOutput] = useState(false);
     const randomUserColor = randomColor();
 
     function handleEditorDidMount(editor, monaco) {
@@ -27,7 +36,6 @@ const CodeEditor = ({ roomID }) => {
         editorRef.current.getModel().setEOL(0);
         const ydoc = new Y.Doc(); 
         
-        // Use a fallback URL if the environment variable is not set
         const signalingUrl = import.meta.env.VITE_BACKEND_URL || 'wss://y-webrtc-signaling-eu.herokuapp.com/';
         const provider = new WebrtcProvider(roomID, ydoc, { signaling: [signalingUrl] })
         const type = ydoc.getText("monaco"); 
@@ -63,8 +71,6 @@ const CodeEditor = ({ roomID }) => {
             } else {
                 setHideUsers(true);
             }
-
-            var jsonData = Array.from(awareness.getStates());
 
             var clientsArr = jsonData.map(item => ({
                 clientId: item[0],
@@ -126,144 +132,182 @@ const CodeEditor = ({ roomID }) => {
         provider.connect();
     }
 
+    const handleFileSelect = (filePath) => {
+        setSelectedFile(filePath);
+        
+        // Add to tabs if not already open
+        if (!openTabs.find(tab => tab.id === filePath)) {
+            const fileName = filePath.split('/').pop();
+            setOpenTabs(prev => [...prev, { id: filePath, name: fileName, modified: false }]);
+        }
+        
+        setActiveTab(filePath);
+    };
+
+    const handleTabClose = (tabId) => {
+        setOpenTabs(prev => prev.filter(tab => tab.id !== tabId));
+        
+        if (activeTab === tabId) {
+            const remainingTabs = openTabs.filter(tab => tab.id !== tabId);
+            if (remainingTabs.length > 0) {
+                setActiveTab(remainingTabs[0].id);
+                setSelectedFile(remainingTabs[0].id);
+            }
+        }
+    };
+
+    const handleRun = () => {
+        setShowInputOutput(true);
+        // Trigger compile
+        if (editorRef.current) {
+            // This would normally trigger the compile function
+            console.log('Running code...');
+        }
+    };
+
+    const handleLivePreview = () => {
+        // Open live preview in new tab
+        window.open('/preview', '_blank');
+    };
+
+    const handleShare = () => {
+        // Show share confirmation or toast
+        console.log('Room URL copied to clipboard!');
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        <div className="h-screen bg-[#1a1a1a] text-gray-200 flex flex-col">
             {/* Header */}
-            <div className="bg-slate-800/50 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-                            Granite
-                        </h1>
-                        <div className="text-sm text-slate-400">
-                            Room: <span className="font-mono text-emerald-400">{roomID}</span>
-                        </div>
-                    </div>
-                    
-                    {/* Active Users */}
-                    {!hideUsers && (
-                        <div className="flex items-center space-x-3">
-                            <span className="text-sm text-slate-400">Active users:</span>
-                            <div className="flex space-x-2">
-                                {users.map((user) => (
-                                    <Client key={user.clientId} username={user.name} color={user.color} />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <Header 
+                users={users}
+                roomID={roomID}
+                onShare={handleShare}
+                onRun={handleRun}
+                onLivePreview={handleLivePreview}
+            />
 
-            {/* Main Content */}
-            <div className="p-6 space-y-6">
-                {/* Controls Bar */}
-                <div className="flex flex-wrap items-center gap-4 bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
-                    <div className="flex-1 min-w-64">
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Language</label>
-                        <LanguagesDropdown currValue={currLang} onSelectChange={(event) => setCurrLang(event)}/>
-                    </div>
-                    <div className="flex gap-3">
-                        <CompileButton content={editorRef} langauge={currLang} input={input} setOutput={(output) => {setCompilerText(output)}}/>
-                        <CopyRoomButton />
-                    </div>
-                </div>
+            {/* Main content */}
+            <div className="flex-1 flex overflow-hidden">
+                {/* Sidebar */}
+                <Sidebar 
+                    isCollapsed={sidebarCollapsed}
+                    onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    activePanel={activePanel}
+                    onPanelChange={setActivePanel}
+                />
 
-                {/* Editor */}
-                <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-2xl">
-                    <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <div className="flex space-x-2">
-                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            </div>
-                            <span className="text-sm font-medium text-slate-300">
-                                main.{currLang.id === 'python3' || currLang.id === 'python2' ? 'py' : 
-                                      currLang.id === 'javascript' || currLang.id === 'nodejs' ? 'js' :
-                                      currLang.id === 'java' ? 'java' :
-                                      currLang.id === 'cpp' ? 'cpp' :
-                                      currLang.id === 'c' ? 'c' : 'txt'}
-                            </span>
-                        </div>
-                        <div className="text-xs text-slate-400">
-                            {currLang.label}
-                        </div>
+                {/* Side panel content */}
+                {!sidebarCollapsed && activePanel === 'explorer' && (
+                    <div className="w-64 bg-[#1a1a1a]">
+                        <FileTree 
+                            onFileSelect={handleFileSelect}
+                            selectedFile={selectedFile}
+                        />
                     </div>
-                    <Editor
-                        aria-labelledby="Code Editor"
-                        language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
-                        height="60vh"
-                        theme='vs-dark'
-                        onMount={handleEditorDidMount}
-                        options={{
-                            cursorBlinking: "smooth",
-                            fontSize: 14,
-                            lineHeight: 1.6,
-                            padding: { top: 16, bottom: 16 },
-                            scrollBeyondLastLine: false,
-                            minimap: { enabled: true, scale: 0.8 },
-                            renderLineHighlight: 'gutter',
-                            fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Menlo', monospace",
-                            fontLigatures: true,
-                            smoothScrolling: true,
-                            cursorSmoothCaretAnimation: true,
-                            bracketPairColorization: { enabled: true },
-                            guides: {
-                                bracketPairs: true,
-                                indentation: true,
-                            },
+                )}
+
+                {/* Editor area */}
+                <div className="flex-1 flex flex-col">
+                    {/* Editor tabs */}
+                    <EditorTabs 
+                        tabs={openTabs}
+                        activeTab={activeTab}
+                        onTabSelect={(tabId) => {
+                            setActiveTab(tabId);
+                            setSelectedFile(tabId);
                         }}
+                        onTabClose={handleTabClose}
                     />
-                </div>
 
-                {/* Input/Output Section */}
-                <div className="grid lg:grid-cols-3 gap-6">
-                    {/* Input */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full shadow-lg">
-                            <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50">
-                                <span className="text-sm font-medium text-slate-300 flex items-center">
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                    Input
-                                </span>
-                            </div>
-                            <div className="p-4">
-                                <InputWindow setInput={(input) => {setInput(input)}}/>
+                    {/* Editor */}
+                    <div className="flex-1 flex flex-col">
+                        {/* Language selector */}
+                        <div className="bg-[#2d2d2d] border-b border-[#3e3e3e] px-4 py-2">
+                            <div className="flex items-center space-x-4">
+                                <div className="w-48">
+                                    <LanguagesDropdown 
+                                        currValue={currLang} 
+                                        onSelectChange={(event) => setCurrLang(event)}
+                                    />
+                                </div>
+                                <CompileButton 
+                                    content={editorRef} 
+                                    langauge={currLang} 
+                                    input={input} 
+                                    setOutput={(output) => {
+                                        setCompilerText(output);
+                                        setShowInputOutput(true);
+                                    }}
+                                />
                             </div>
                         </div>
-                    </div>
 
-                    {/* Output */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden h-full shadow-lg">
-                            <div className="bg-slate-800/50 px-4 py-3 border-b border-slate-700/50 flex items-center justify-between">
-                                <span className="text-sm font-medium text-slate-300 flex items-center">
-                                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Output
-                                </span>
-                                {compilerText && (
-                                    <div className="flex items-center space-x-4 text-xs text-slate-400">
-                                        {compilerText?.cpuTime && (
-                                            <span className="bg-slate-700/50 px-2 py-1 rounded">
-                                                CPU: {compilerText.cpuTime}s
-                                            </span>
-                                        )}
-                                        {compilerText?.memory && (
-                                            <span className="bg-slate-700/50 px-2 py-1 rounded">
-                                                Memory: {compilerText.memory} KB
-                                            </span>
+                        {/* Editor */}
+                        <div className="flex-1">
+                            <Editor
+                                aria-labelledby="Code Editor"
+                                language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
+                                height="100%"
+                                theme='vs-dark'
+                                onMount={handleEditorDidMount}
+                                options={{
+                                    cursorBlinking: "smooth",
+                                    fontSize: 14,
+                                    lineHeight: 1.6,
+                                    padding: { top: 16, bottom: 16 },
+                                    scrollBeyondLastLine: false,
+                                    minimap: { enabled: true, scale: 0.8 },
+                                    renderLineHighlight: 'gutter',
+                                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Menlo', monospace",
+                                    fontLigatures: true,
+                                    smoothScrolling: true,
+                                    cursorSmoothCaretAnimation: true,
+                                    bracketPairColorization: { enabled: true },
+                                    guides: {
+                                        bracketPairs: true,
+                                        indentation: true,
+                                    },
+                                }}
+                            />
+                        </div>
+
+                        {/* Input/Output panel (collapsible) */}
+                        {showInputOutput && (
+                            <div className="h-64 border-t border-[#2d2d2d] bg-[#1a1a1a] flex">
+                                <div className="w-1/3 border-r border-[#2d2d2d]">
+                                    <div className="h-8 bg-[#2d2d2d] border-b border-[#3e3e3e] flex items-center px-4">
+                                        <span className="text-sm font-medium">Input</span>
+                                        <button 
+                                            onClick={() => setShowInputOutput(false)}
+                                            className="ml-auto text-gray-400 hover:text-white"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                    <div className="p-4 h-full">
+                                        <InputWindow setInput={setInput} />
+                                    </div>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="h-8 bg-[#2d2d2d] border-b border-[#3e3e3e] flex items-center px-4">
+                                        <span className="text-sm font-medium">Output</span>
+                                        {compilerText && (
+                                            <div className="ml-auto flex items-center space-x-2 text-xs text-gray-400">
+                                                {compilerText?.cpuTime && (
+                                                    <span>CPU: {compilerText.cpuTime}s</span>
+                                                )}
+                                                {compilerText?.memory && (
+                                                    <span>Memory: {compilerText.memory} KB</span>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
-                                )}
+                                    <div className="p-4 h-full">
+                                        <OutputWindow outputDetails={compilerText} />
+                                    </div>
+                                </div>
                             </div>
-                            <div className="p-4">
-                                <OutputWindow outputDetails={compilerText}/>
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

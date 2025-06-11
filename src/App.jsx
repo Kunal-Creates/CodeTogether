@@ -8,14 +8,13 @@ const CodeEditor = lazy(() => import('./pages/CodeEditor'));
 const uuid = new ShortUniqueId({ length: 6 });
 
 const loadingScreen = 
-  <div className="flex items-center justify-center h-screen">
-    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+  <div className="flex items-center justify-center h-screen bg-[#1a1a1a]">
+    <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] text-[#ff6b35]" role="status">
       <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
         Loading...
       </span>
     </div>
   </div>
-
 
 function App() {
   const [roomID, setRoomID] = useState('');
