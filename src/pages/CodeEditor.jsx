@@ -11,7 +11,6 @@ import { languageOptions } from '../data/languageOptions'
 import randomColor from 'randomcolor'
 import Client from '../components/Client'
 import CopyRoomButton from '../components/CopyRoomButton'
-import OutputDetails from '../components/OutputDetails'
 
 const CodeEditor = ({ roomID }) => {
 
