@@ -22,26 +22,31 @@ const EditorTabs = ({ tabs, activeTab, onTabSelect, onTabClose }) => {
   };
 
   return (
-    <div className="flex bg-[#1a1a1a] border-b border-[#2d2d2d] overflow-x-auto">
+    <div className="flex bg-[#1a1a1a] border-b border-[#2d2d2d] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
       {tabs.map((tab) => (
         <div
           key={tab.id}
-          className={`flex items-center space-x-2 px-4 py-2 border-r border-[#2d2d2d] cursor-pointer group min-w-0 ${
+          className={`flex items-center space-x-2 px-4 py-2.5 border-r border-[#2d2d2d] cursor-pointer group min-w-0 transition-all duration-200 ${
             activeTab === tab.id 
               ? 'bg-[#2d2d2d] text-white border-t-2 border-t-[#ff6b35]' 
               : 'text-gray-400 hover:text-gray-200 hover:bg-[#252525]'
           }`}
           onClick={() => onTabSelect(tab.id)}
         >
-          {getFileIcon(tab.name)}
-          <span className="text-sm truncate max-w-32">{tab.name}</span>
-          {tab.modified && <div className="w-2 h-2 bg-white rounded-full"></div>}
+          <div className="flex-shrink-0">
+            {getFileIcon(tab.name)}
+          </div>
+          <span className="text-sm truncate max-w-32 select-none">{tab.name}</span>
+          {tab.modified && (
+            <div className="w-2 h-2 bg-white rounded-full flex-shrink-0"></div>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();
               onTabClose(tab.id);
             }}
-            className="opacity-0 group-hover:opacity-100 hover:bg-[#3e3e3e] rounded p-0.5 transition-opacity"
+            className="opacity-0 group-hover:opacity-100 hover:bg-[#3e3e3e] rounded p-1 transition-all duration-200 flex-shrink-0"
+            title="Close tab"
           >
             <XMarkIcon className="w-3 h-3" />
           </button>

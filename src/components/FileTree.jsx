@@ -9,7 +9,7 @@ import {
   EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline';
 
-const FileTree = ({ onFileSelect, selectedFile }) => {
+const FileTree = ({ onFileSelect, selectedFile, onNewFile, onNewFolder }) => {
   const [expandedFolders, setExpandedFolders] = useState(new Set(['src', 'components']));
   const [contextMenu, setContextMenu] = useState(null);
 
@@ -26,9 +26,12 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
             { name: 'CompileButton.jsx', type: 'file', language: 'javascript' },
             { name: 'CopyRoomButton.jsx', type: 'file', language: 'javascript' },
             { name: 'FileTree.jsx', type: 'file', language: 'javascript' },
+            { name: 'Header.jsx', type: 'file', language: 'javascript' },
             { name: 'InputWindow.jsx', type: 'file', language: 'javascript' },
             { name: 'LanguageDropdown.jsx', type: 'file', language: 'javascript' },
             { name: 'OutputWindow.jsx', type: 'file', language: 'javascript' },
+            { name: 'Sidebar.jsx', type: 'file', language: 'javascript' },
+            { name: 'EditorTabs.jsx', type: 'file', language: 'javascript' },
           ]
         },
         {
@@ -86,6 +89,16 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
     setContextMenu(null);
   };
 
+  const handleNewFile = () => {
+    onNewFile?.();
+    closeContextMenu();
+  };
+
+  const handleNewFolder = () => {
+    onNewFolder?.();
+    closeContextMenu();
+  };
+
   const getFileIcon = (fileName, language) => {
     if (fileName.endsWith('.jsx') || fileName.endsWith('.js')) {
       return <div className="w-4 h-4 bg-yellow-500 rounded-sm flex items-center justify-center text-xs font-bold text-black">JS</div>;
@@ -114,7 +127,7 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
       return (
         <div key={currentPath}>
           <div
-            className={`flex items-center py-1 px-2 hover:bg-[#2a2a2a] cursor-pointer group ${
+            className={`flex items-center py-1.5 px-2 hover:bg-[#2a2a2a] cursor-pointer group transition-colors ${
               isSelected ? 'bg-[#37373d]' : ''
             }`}
             style={{ paddingLeft: `${8 + level * 16}px` }}
@@ -122,17 +135,17 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
             onContextMenu={(e) => handleRightClick(e, item)}
           >
             {isExpanded ? (
-              <ChevronDownIcon className="w-4 h-4 text-gray-400 mr-1" />
+              <ChevronDownIcon className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
             ) : (
-              <ChevronRightIcon className="w-4 h-4 text-gray-400 mr-1" />
+              <ChevronRightIcon className="w-4 h-4 text-gray-400 mr-1 flex-shrink-0" />
             )}
             {isExpanded ? (
-              <FolderOpenIcon className="w-4 h-4 text-[#ff6b35] mr-2" />
+              <FolderOpenIcon className="w-4 h-4 text-[#ff6b35] mr-2 flex-shrink-0" />
             ) : (
-              <FolderIcon className="w-4 h-4 text-[#ff6b35] mr-2" />
+              <FolderIcon className="w-4 h-4 text-[#ff6b35] mr-2 flex-shrink-0" />
             )}
-            <span className="text-sm text-gray-200 select-none">{item.name}</span>
-            <EllipsisHorizontalIcon className="w-4 h-4 text-gray-500 ml-auto opacity-0 group-hover:opacity-100" />
+            <span className="text-sm text-gray-200 select-none truncate">{item.name}</span>
+            <EllipsisHorizontalIcon className="w-4 h-4 text-gray-500 ml-auto opacity-0 group-hover:opacity-100 flex-shrink-0" />
           </div>
           {isExpanded && item.children && (
             <div>
@@ -146,15 +159,17 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
     return (
       <div
         key={currentPath}
-        className={`flex items-center py-1 px-2 hover:bg-[#2a2a2a] cursor-pointer group ${
+        className={`flex items-center py-1.5 px-2 hover:bg-[#2a2a2a] cursor-pointer group transition-colors ${
           isSelected ? 'bg-[#37373d] border-l-2 border-[#ff6b35]' : ''
         }`}
         style={{ paddingLeft: `${24 + level * 16}px` }}
         onClick={() => onFileSelect(currentPath)}
         onContextMenu={(e) => handleRightClick(e, item)}
       >
-        {getFileIcon(item.name, item.language)}
-        <span className="text-sm text-gray-200 ml-2 select-none">{item.name}</span>
+        <div className="flex-shrink-0 mr-2">
+          {getFileIcon(item.name, item.language)}
+        </div>
+        <span className="text-sm text-gray-200 select-none truncate">{item.name}</span>
       </div>
     );
   };
@@ -166,20 +181,24 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Explorer</h3>
             <div className="flex space-x-1">
-              <button className="p-1 hover:bg-[#2a2a2a] rounded">
+              <button 
+                onClick={handleNewFile}
+                className="p-1.5 hover:bg-[#2a2a2a] rounded transition-colors"
+                title="New File"
+              >
                 <PlusIcon className="w-4 h-4 text-gray-400" />
               </button>
-              <button className="p-1 hover:bg-[#2a2a2a] rounded">
+              <button 
+                className="p-1.5 hover:bg-[#2a2a2a] rounded transition-colors"
+                title="More Actions"
+              >
                 <EllipsisHorizontalIcon className="w-4 h-4 text-gray-400" />
               </button>
             </div>
           </div>
-          <div className="bg-[#2d2d2d] rounded-md px-3 py-2 mb-3">
-            <span className="text-sm font-medium text-gray-200">Graphite</span>
-          </div>
         </div>
         
-        <div className="py-2">
+        <div className="py-1">
           {fileStructure.map(item => renderItem(item))}
         </div>
       </div>
@@ -192,20 +211,26 @@ const FileTree = ({ onFileSelect, selectedFile }) => {
             onClick={closeContextMenu}
           />
           <div
-            className="fixed z-50 bg-[#2d2d2d] border border-[#3e3e3e] rounded-md shadow-lg py-1 min-w-48"
+            className="fixed z-50 bg-[#2d2d2d] border border-[#3e3e3e] rounded-md shadow-xl py-1 min-w-48"
             style={{ left: contextMenu.x, top: contextMenu.y }}
           >
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d]">
+            <button 
+              onClick={handleNewFile}
+              className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d] transition-colors"
+            >
               New File
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d]">
+            <button 
+              onClick={handleNewFolder}
+              className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d] transition-colors"
+            >
               New Folder
             </button>
             <hr className="border-[#3e3e3e] my-1" />
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d]">
+            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d] transition-colors">
               Rename
             </button>
-            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d]">
+            <button className="w-full text-left px-3 py-2 text-sm text-gray-200 hover:bg-[#37373d] transition-colors">
               Delete
             </button>
           </div>

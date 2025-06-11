@@ -2,25 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-600 {
+  scrollbar-color: #4b5563 transparent;
+}
+
+.scrollbar-track-transparent {
+  scrollbar-color: transparent transparent;
+}
+
+/* Webkit scrollbar styles for better browser support */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Monaco Editor collaborative selection styles */
 .yRemoteSelection {
-    background-color: rgb(250, 129, 0, .5)
+  background-color: rgb(250, 129, 0, .5)
 }
 
 .yRemoteSelectionHead {
-    position: absolute;
-    border-left: #3482F6 solid 2px;
-    border-top: #3482F6 solid 2px;
-    border-bottom: #3482F6 solid 2px;
-    height: 100%;
-    box-sizing: border-box;
+  position: absolute;
+  border-left: #3482F6 solid 2px;
+  border-top: #3482F6 solid 2px;
+  border-bottom: #3482F6 solid 2px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .yRemoteSelectionHead::after {
-    position: absolute;
-    content: ' ';
-    border: 3px solid #3482F6;
-    border-radius: 4px;
-    left: -4px;
-    top: -5px;
+  position: absolute;
+  content: ' ';
+  border: 3px solid #3482F6;
+  border-radius: 4px;
+  left: -4px;
+  top: -5px;
 }
 
+/* Smooth transitions for UI elements */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #ff6b35;
+  outline-offset: 2px;
+}
+
+/* Custom selection colors */
+::selection {
+  background-color: rgba(255, 107, 53, 0.3);
+}
+
+::-moz-selection {
+  background-color: rgba(255, 107, 53, 0.3);
+}

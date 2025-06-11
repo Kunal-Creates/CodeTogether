@@ -1,18 +1,17 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Editor from "@monaco-editor/react"
 import * as Y from "yjs"
 import { WebrtcProvider } from 'y-webrtc'
 import { MonacoBinding } from "y-monaco"
 import LanguagesDropdown from '../components/LanguageDropdown'
 import CompileButton from '../components/CompileButton'
-import InputWindow from '../components/InputWindow'
-import OutputWindow from '../components/OutputWindow'
 import { languageOptions } from '../data/languageOptions'
 import randomColor from 'randomcolor'
 import Header from '../components/Header'
 import Sidebar from '../components/Sidebar'
 import FileTree from '../components/FileTree'
 import EditorTabs from '../components/EditorTabs'
+import Terminal from '../components/Terminal'
 
 const CodeEditor = ({ roomID }) => {
     const editorRef = useRef(null);
@@ -28,8 +27,22 @@ const CodeEditor = ({ roomID }) => {
         { id: 'src/App.jsx', name: 'App.jsx', modified: false }
     ]);
     const [activeTab, setActiveTab] = useState('src/App.jsx');
-    const [showInputOutput, setShowInputOutput] = useState(false);
+    const [terminalOpen, setTerminalOpen] = useState(false);
+    const [isRunning, setIsRunning] = useState(false);
     const randomUserColor = randomColor();
+
+    // Handle keyboard shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === '`') {
+                e.preventDefault();
+                setTerminalOpen(!terminalOpen);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [terminalOpen]);
 
     function handleEditorDidMount(editor, monaco) {
         editorRef.current = editor;
@@ -157,26 +170,54 @@ const CodeEditor = ({ roomID }) => {
     };
 
     const handleRun = () => {
-        setShowInputOutput(true);
-        // Trigger compile
+        setTerminalOpen(true);
+        setIsRunning(true);
+        
+        // Simulate compilation
+        setTimeout(() => {
+            setIsRunning(false);
+        }, 2000);
+        
         if (editorRef.current) {
-            // This would normally trigger the compile function
             console.log('Running code...');
         }
     };
 
+    const handleStop = () => {
+        setIsRunning(false);
+    };
+
+    const handleClearOutput = () => {
+        setCompilerText('');
+    };
+
     const handleLivePreview = () => {
-        // Open live preview in new tab
         window.open('/preview', '_blank');
     };
 
     const handleShare = () => {
-        // Show share confirmation or toast
         console.log('Room URL copied to clipboard!');
     };
 
+    const handleNewFile = () => {
+        const fileName = prompt('Enter file name:');
+        if (fileName) {
+            const newFile = { id: fileName, name: fileName, modified: false };
+            setOpenTabs(prev => [...prev, newFile]);
+            setActiveTab(fileName);
+            setSelectedFile(fileName);
+        }
+    };
+
+    const handleNewFolder = () => {
+        const folderName = prompt('Enter folder name:');
+        if (folderName) {
+            console.log('Creating folder:', folderName);
+        }
+    };
+
     return (
-        <div className="h-screen bg-[#1a1a1a] text-gray-200 flex flex-col">
+        <div className="h-screen bg-[#1a1a1a] text-gray-200 flex flex-col overflow-hidden">
             {/* Header */}
             <Header 
                 users={users}
@@ -198,16 +239,18 @@ const CodeEditor = ({ roomID }) => {
 
                 {/* Side panel content */}
                 {!sidebarCollapsed && activePanel === 'explorer' && (
-                    <div className="w-64 bg-[#1a1a1a]">
+                    <div className="w-64 bg-[#1a1a1a] flex-shrink-0">
                         <FileTree 
                             onFileSelect={handleFileSelect}
                             selectedFile={selectedFile}
+                            onNewFile={handleNewFile}
+                            onNewFolder={handleNewFolder}
                         />
                     </div>
                 )}
 
                 {/* Editor area */}
-                <div className="flex-1 flex flex-col">
+                <div className="flex-1 flex flex-col min-w-0">
                     {/* Editor tabs */}
                     <EditorTabs 
                         tabs={openTabs}
@@ -219,98 +262,69 @@ const CodeEditor = ({ roomID }) => {
                         onTabClose={handleTabClose}
                     />
 
-                    {/* Editor */}
-                    <div className="flex-1 flex flex-col">
-                        {/* Language selector */}
-                        <div className="bg-[#2d2d2d] border-b border-[#3e3e3e] px-4 py-2">
-                            <div className="flex items-center space-x-4">
-                                <div className="w-48">
-                                    <LanguagesDropdown 
-                                        currValue={currLang} 
-                                        onSelectChange={(event) => setCurrLang(event)}
-                                    />
-                                </div>
-                                <CompileButton 
-                                    content={editorRef} 
-                                    langauge={currLang} 
-                                    input={input} 
-                                    setOutput={(output) => {
-                                        setCompilerText(output);
-                                        setShowInputOutput(true);
-                                    }}
+                    {/* Language selector and controls */}
+                    <div className="bg-[#2d2d2d] border-b border-[#3e3e3e] px-4 py-2 flex-shrink-0">
+                        <div className="flex items-center space-x-4">
+                            <div className="w-48">
+                                <LanguagesDropdown 
+                                    currValue={currLang} 
+                                    onSelectChange={(event) => setCurrLang(event)}
                                 />
                             </div>
-                        </div>
-
-                        {/* Editor */}
-                        <div className="flex-1">
-                            <Editor
-                                aria-labelledby="Code Editor"
-                                language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
-                                height="100%"
-                                theme='vs-dark'
-                                onMount={handleEditorDidMount}
-                                options={{
-                                    cursorBlinking: "smooth",
-                                    fontSize: 14,
-                                    lineHeight: 1.6,
-                                    padding: { top: 16, bottom: 16 },
-                                    scrollBeyondLastLine: false,
-                                    minimap: { enabled: true, scale: 0.8 },
-                                    renderLineHighlight: 'gutter',
-                                    fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Menlo', monospace",
-                                    fontLigatures: true,
-                                    smoothScrolling: true,
-                                    cursorSmoothCaretAnimation: true,
-                                    bracketPairColorization: { enabled: true },
-                                    guides: {
-                                        bracketPairs: true,
-                                        indentation: true,
-                                    },
+                            <CompileButton 
+                                content={editorRef} 
+                                langauge={currLang} 
+                                input={input} 
+                                setOutput={(output) => {
+                                    setCompilerText(output);
+                                    setTerminalOpen(true);
                                 }}
                             />
                         </div>
+                    </div>
 
-                        {/* Input/Output panel (collapsible) */}
-                        {showInputOutput && (
-                            <div className="h-64 border-t border-[#2d2d2d] bg-[#1a1a1a] flex">
-                                <div className="w-1/3 border-r border-[#2d2d2d]">
-                                    <div className="h-8 bg-[#2d2d2d] border-b border-[#3e3e3e] flex items-center px-4">
-                                        <span className="text-sm font-medium">Input</span>
-                                        <button 
-                                            onClick={() => setShowInputOutput(false)}
-                                            className="ml-auto text-gray-400 hover:text-white"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
-                                    <div className="p-4 h-full">
-                                        <InputWindow setInput={setInput} />
-                                    </div>
-                                </div>
-                                <div className="flex-1">
-                                    <div className="h-8 bg-[#2d2d2d] border-b border-[#3e3e3e] flex items-center px-4">
-                                        <span className="text-sm font-medium">Output</span>
-                                        {compilerText && (
-                                            <div className="ml-auto flex items-center space-x-2 text-xs text-gray-400">
-                                                {compilerText?.cpuTime && (
-                                                    <span>CPU: {compilerText.cpuTime}s</span>
-                                                )}
-                                                {compilerText?.memory && (
-                                                    <span>Memory: {compilerText.memory} KB</span>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-4 h-full">
-                                        <OutputWindow outputDetails={compilerText} />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                    {/* Editor */}
+                    <div className="flex-1 min-h-0">
+                        <Editor
+                            aria-labelledby="Code Editor"
+                            language={(currLang.id === 'rhino' || currLang.id === 'nodejs') ? 'javascript' : ((currLang.id === 'python3' || currLang.id === 'python2') ? 'python' : currLang.id)}
+                            height="100%"
+                            theme='vs-dark'
+                            onMount={handleEditorDidMount}
+                            options={{
+                                cursorBlinking: "smooth",
+                                fontSize: 14,
+                                lineHeight: 1.6,
+                                padding: { top: 16, bottom: 16 },
+                                scrollBeyondLastLine: false,
+                                minimap: { enabled: true, scale: 0.8 },
+                                renderLineHighlight: 'gutter',
+                                fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Monaco', 'Menlo', monospace",
+                                fontLigatures: true,
+                                smoothScrolling: true,
+                                cursorSmoothCaretAnimation: true,
+                                bracketPairColorization: { enabled: true },
+                                guides: {
+                                    bracketPairs: true,
+                                    indentation: true,
+                                },
+                                automaticLayout: true,
+                            }}
+                        />
                     </div>
                 </div>
             </div>
+
+            {/* Terminal */}
+            <Terminal
+                isOpen={terminalOpen}
+                onToggle={() => setTerminalOpen(!terminalOpen)}
+                output={compilerText}
+                isRunning={isRunning}
+                onRun={handleRun}
+                onStop={handleStop}
+                onClear={handleClearOutput}
+            />
         </div>
     )
 }
