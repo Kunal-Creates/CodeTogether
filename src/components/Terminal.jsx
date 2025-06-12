@@ -236,3 +236,5 @@ const Terminal = ({ isOpen, onToggle, output, isRunning, onRun, onStop, onClear 
 };
 
 export default Terminal;
+
+export default Terminal
